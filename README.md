@@ -17,3 +17,21 @@ removed, because it is also non-sensical, as I used exception-based handling
 already (in minimal fashion).
 
 This code is, unfortunately, not my best. Please don't judge me!
+
+Inspiration for the actors and concurrency parts of this have been taken from
+Programming In Scala, 1st Edition by Martin Odersky available on the web at:
+(http://www.artima.com/pins1ed/)
+
+### Notes from front lines ###
+
+One of the points of the the course (CS249A) was to impress upon the
+scalability and maintainability of a codebase. I think the course failed in
+that regards, simply due to the huge amount of code required to write a
+relatively simple simulation (4000 for assignment 1, 8000 for assignment 2).
+I'm not convinced the Scala solution is much more extensible, but perhaps it
+scales better simply due to the fact that it's a fraction of the size.
+
+##### TODO #####
+Where am I? I have most of the basic machinery for the simulation. Problems
+that need to be addressed: creating the shipments, stats, tests! Anything else?
+Who knows... But right now, it's time for bed.

@@ -1,13 +1,42 @@
 package entity
 
 import adt._
+import scala.actors.Actor
+import scala.actors.Actor.self
+import sim._
 
-// Difficulty? Return Segment?
+// LOWPRI: Difficulty? Return Segment?
 case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode, 
-    len: Length, difficulty: Difficulty = Difficulty(1)) {
+    len: Length, difficulty: Difficulty = Difficulty(1)) extends Actor {
   src.segs += this
   fleet.segs += this
+  
+  private var nextAvailableTime = 0 
+  
   def time = len / fleet.speed(mode)
   def cost = len * difficulty * fleet.cost(mode)
   override def toString = src.name + "->" + dst.name
+  
+  def act() {
+    loop {
+      react {
+        case Stop => exit()
+        case Ping(time) =>
+          // We can send at soonest the next time slot.
+          nextAvailableTime = math.max(time + 1, nextAvailableTime)
+          fleet.clock ! Pong(time, self)
+        case msg => handleSimMessage(msg)
+      }
+    }
+  }
+  
+  def handleSimMessage(msg: Any) = msg match {
+    case shp @ Shipment(_, _, dst, size) =>
+      shp.moved()
+      if (this == shp.dst) shp.completed()
+      else {
+        fleet.clock !  WorkItem(nextAvailableTime, shp, shp.next)
+        nextAvailableTime += shp.size // TODO: take into account capacity
+      }
+  }
 }

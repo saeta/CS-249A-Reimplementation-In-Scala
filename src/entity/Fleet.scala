@@ -4,6 +4,7 @@ import adt.Mode
 import adt.Speed
 import query._
 import adt.CostPerDistance
+import sim.Clock
 
 class Fleet {
   import scala.collection.mutable.Map
@@ -15,6 +16,8 @@ class Fleet {
 
   val segs = scala.collection.mutable.Set[Segment]()
   val locs = scala.collection.mutable.Set[Location]()
+  
+  val clock = new Clock(this)
   
   def count(lt: LocType) = locs.count(loc => loc.lt == lt)
   def count(mode: Mode) = segs.count(s => s.mode == mode)
