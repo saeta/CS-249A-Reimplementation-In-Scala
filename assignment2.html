@@ -1,0 +1,315 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+	"http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+<title>Assignment 3</title>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<link rel="stylesheet" href="http://www.w3.org/StyleSheets/Core/Steely">
+<style type="text/css">
+<!--/* <![CDATA[ */
+blockquote { font-style: italic; font-size: smaller; }
+/* ]]> */-->
+</style>
+</head>
+
+<body>
+<h1>Assignment 3: Shipping Simulation</h1>
+<h5>Due: Monday, November 28, 2011, at 11:59 PM</h5>
+
+<!--    <a href="#announcements">Announcements</a> | -->
+    <a href="#intro">Introduction</a> |
+    <a href="#part1">Part 1</a> |
+    <a href="#part2">Part 2</a> | 
+    <a href="#part3">Part 3</a> | 
+    <a href="#part4">Part 4</a> | 
+    <a href="#part5">Part 5</a> | 
+    <a href="#part6">Part 6</a> | 
+    <a href="#part7">Part 7</a> | 
+    <a href="#strings">Strings</a> | 
+    <a href="#tips">Tips</a> | 
+    <a href="#starter_code">Starter Code</a> | 
+    <a href="#clarifications">Clarifications</a> | 
+    <a href="#submission">Submission</a> | 
+    <a href="#grading">Grading</a>
+
+<h2 id="announcements" style="display:none;">Announcements</a></h2>
+<ul style="display:none;">
+    <li>11/13/2010 -- Note that deadline for assignment 3 is changed, it's due on Friday, December 3rd, 2010 11:59PM</li>
+    <li>11/11/2010 -- There will be a review session tomorrow, November 12, from
+    4:15-5:05 in Skilling 193.</a></li>
+    <li>11/8/2010 -- Sample client file is now available in the <a href="files">assignment source directory</a></li>
+</ul>
+
+<h2 id="intro">Introduction</h2>
+<p>This assignment is a continuation of the last one; you will be
+extending your last assignment to a more useful and more interesting
+simulation.</p>
+<p>The assignment has a number of parts. The order of the parts below is
+reasonable but not necessarily the order in which you should do the
+implementation &mdash; you may defer working on a part that appears
+earlier in the list to work on one that appears later in the list.</p>
+
+<h2 id="part1">Part 1: Introduce exception-based error-handling</h2>
+<p>In Assignment 2, you had the option of handling errors by printing
+messages at the point of detection. Make the implementation use
+exceptions as covered in class, using the standard error (stderr or
+cerr) as your logging mechanism. You should allow the exceptions to
+propagate up to the Client layer, except when there is a logical
+reason for catching them in the Rep layer (if the Rep could do some
+smarter error handling than the Client could).</p>
+
+<h2 id="part2">Part 2: Let activities occur in virtual time</h2>
+<p>The Activity Manager allows creation and deletion of activity
+objects. When running, it chooses the appropriate next activity and
+executes it. By virtual time, we mean that the client will control the
+rate of the simulation, by directly setting the current simulation time.
+When a new time is received, the simulation will execute until it has
+reached the desired time, and then halt and wait for more commands.</p>
+
+<p>Virtual time should be stepped through using hours as the time unit.
+Use the double-precision floating-point type for the representation of
+hours. Just be sure to understand the idiosyncrasies of floating-point
+numbers, and avoid mistakes such as testing for equality or inequality
+(<code>==</code>, <code>!=</code>) between the numbers.</p>
+
+<h2 id="part3">Part 3: Implement shipment transfers</h2>
+<p>When a shipment arrives on a segment, an attribute-based notification
+causes an activity to be enqueued. The activity delays for the proper
+amount of time and then uses a timeout notifiee to indicate that the
+shipment has been delivered and the segment carrier is free to transport
+again.</p>
+
+<p>A shipment has the following characteristics:</p>
+<ul>
+<li>A source location and a destination location.</li>
+<li>A load of some arbitrary number of packages.</li>
+</ul>
+<p>A location that receives a shipment acts according to the location
+type:</p>
+<ul>
+<li>A customer location will update transfer statistics if the shipment
+is addressed to it; otherwise it will refuse delivery (meaning the
+shipment goes back to the previous location). If you prefer, you can instead
+implement a routing algorithm that never ships to customer locations other than
+ the final shipment destination.</li>
+<li>Any other location type attempts to transfer the shipment along a
+path that will get it closer to its destination. Every segment has a
+capacity attribute, and if the desired segment is
+at full capacity, and no suitable alternative can be found,
+then the segment refuses delivery. It's up to you
+whether this means that the location holds the packages until a segment opens,
+or sends them back along the return segment from which they came. 
+Statistics are updated in either case.</li>
+</ul>
+
+<p>How does a location decide where next to send a shipment? You may use
+any scheme you like. One straightforward approach that we suggest is a
+route table that uses a spanning tree of every location to determine a
+route for any shipment. Describe your algorithm in your README file.
+You may assume that once the simulation starts, the network will not change,
+so it's OK to perform fairly expensive pre-processing on the network since
+the cost will be amortized over the duration of the simulation.</p>
+
+<p>For this assignment, we will only account for virtual time associated
+with transporting a shipment along a segment, and we assume that transfer to
+a new segment at a location and determination of a route takes
+no virtual time.</p>
+
+<blockquote>
+<p>As an example of calculating the virtual time for carrying a
+shipment: if a shipment consisting of 200 packages is to be sent over a
+400-mile segment using trucks capable of 50 packages and operating at 80
+mph, it takes (400 miles)/(80 mph)=5 hours to send 50 packages, so you
+can assume that it takes (5 hours)&times;(200/50)=20 hours to send 200
+packages. Note, however, that it will take a full 5 hours more for
+201 packages, because the trucks would have to make another full trip
+just for that last package.</p>
+</blockquote>
+
+<p>Finally, you must somehow inject shipments into the simulation and
+collect statistics for them. To this end, you must extend the attributes
+supported by instances of type Customer and any segment type.</p>
+
+<h2 id="part4">Part 4: Implement a real-time Activity Manager</h2>
+<p>The real-time activity manager shall be used to advance the virtual
+time; that is, the advancement of the clock for your virtual-time
+Activity Manager is an activity from the point of view of your real-time
+Activity Manager.</p>
+
+<p>The real-time activity manager should advance the virtual time with a
+scaling factor; for example, one second of the real time (wallclock
+time) per hour of the virtual time.</p>
+
+<p>Like the virtual activity manager, this Activity Manager also allows
+creation and deletion of activity objects. When running, it chooses the
+appropriate Activity object at the appropriate time and executes it.</p>
+
+<h2 id="part5">Part 5: Run some simulations</h2>
+<p>Construct a shipping network with at least four locations, and
+confirm that shipments move between them as expected. Run tests with different
+segment capacity values to compare your network under light and heavy
+congestion. Add a diagram of
+this network to your README file, and discuss the tests performed. The
+code for this client should be named verification.cpp.</p>
+
+<p>In addition, set up a shipping network with 100 sources and 1
+destination. The destination should be connected to a terminal, which is
+in turn connected to 10 terminals, each of which is connected to 10
+sources. All connections are via truck segments. Have each source send
+shipments holding 100 packages to the destination at the normal truck
+speed. Run the simulation for a while.</p>
+
+<p>Now, reset the simulation and do the same thing, but vary the
+shipment sizes (use a randomly chosen shipment size for each source)
+from 1 package to 1,000 packages. Record the results for each case.</p>
+
+<p>Discuss in your README file the level of shipment delivery refusal
+observed in each case. The client implementing this test should be
+submitted as experiment.cpp. We would like you to include whatever
+statistics you think are relevant to your specific implementation,
+but at a bare minimum please provide us with the destination's shipments
+received and average latency, as well as some sort of measure of segment
+performance (an average for each of shipments received and refused, for
+example).</p>
+
+<h2 id="part6">Part 6: Explore further extensions</h2>
+<p><b>(optional; for extra credit)</b> Email the TAs with ideas for
+experiments that you think would be interesting, and implement them.
+Some extension topics include: sophisticated routing schemes that take
+into account segment speeds and shipping traffic, receipt
+acknowledgment, and redelivery requests, methods to handle burstiness of
+the traffic, terminal latency modeling, experimenting with different
+network topologies, maintaining a trace route in the shipment structure
+to be used with probe shipments to determine least congested routes, and
+random variations in segment performance. You are not limited to this
+list.</p>
+
+<h2 id="part7">Part 7: Group Requirements</h2>
+<p>First, groups will be required to implement two different routing algorithms.
+Neither of them has to be particularly sophisticated, but we want you to
+be able to observe differences in network congestion and latency and
+describe in your README file what causes these differences. The routing
+algorithm should be specified via a read/write attribute of your
+Connectivity object. For example, if your two algorithms are a BFS and
+Dijkstra's, the client could say <nobr>connInstance->attributeIs("routing", "Dijkstra")</nobr>
+to specify the style of routing. The client should also be able to
+query the current routing algorithm via <nobr>connInstance->attribute("routing").</nobr></p>
+<p>A second requirement for the group project will be to implement scheduled changes
+to the fleet object's attributes. Specifically, we want the client to be able to
+indicate during which hours of the day the fleet's attributes will change. For instance,
+trucks may be able to travel faster during the night than they can during the day, but
+the capacity may be lower due to fewer truckers available to drive those hours. It's up to
+you how to implement this and what the interface looks like, but the minimum requirement is
+to be able to specify two periods of time, such as one from 8pm to 8am, and one from 8am to
+8pm. The client can set different attributes for either of these time periods, and your
+activity scheduler should track when these changes occur and set the attributes accordingly.
+A simplifying assumption you can make is that the attributes being used as a package departs
+from the location will hold throughout the segment traversal. Assume the virtual time is
+a 24-hour clock starting at midnight, so for instance, virtual time of 70 would be 10pm.</p>
+<p>Last, groups need an additional statistic for each Customer Location
+indicating the total cost that was incurred by packages traveling along
+the network until they were removed at that Customer Location.</p>
+
+
+<h2 id="strings">Strings</h2>
+<p>The string values from Assignment 2 continue to be a contract between
+the rep layer and the client. However, we must add some new strings to
+provide the extra functionality for this
+assignment.</p>
+<ul>
+<li>Locations
+<ul>
+<li>Type: "Customer"</li>
+<li>Source attributes: (a customer only sends shipments if it has valid
+values for each of these)
+<ul>
+<li>"Transfer Rate" (in shipments per day)</li>
+<li>"Shipment Size" (in packages)</li>
+<li>"Destination" (an absolute name of a location)</li>
+</ul>
+<li>Destination attributes:
+<ul>
+<li>"Shipments Received": read-only; the number of shipments destined
+for and received by this location</li>
+<li>"Average Latency": read-only; the average virtual time it takes a
+shipment to make its way from the source to the destination, excluding
+refused shipments</li>
+<li>"Total Cost": read-only; the total cost of all packages that have been
+received by this location (Groups only)</li>
+</ul>
+</ul>
+<li>Segments
+<ul>
+<li>"Shipments Received": read-only</li>
+<li>"Shipments Refused": read-only</li>
+<li>"Capacity" (in number of shipments): default is 10</li>
+</ul>
+</ul>
+
+<h3 id="tips">Tips</h3>
+<p> This assignment is extremely open-ended. We won't be as concerned with
+exact output or implementation details as we have been, so how you implement
+your simulation is completely up to you, however, here are some guidelines
+which may be helpful to get you started. <br>
+<br>
+A customer location should only begin sending shipments once all 3 of the source attributes have been set. A reactor (CustomerReactor) for customer locations that receives notification on "Transfer rate" "Shipment size" and "Destination" would be ideal here. Once all 3 attributes have been set, the customer location should create a new Activity (InjectActivityReactor) that injects shipments into customer location.<br>
+<br>
+Each location could also have a reactor (LocationReactor) that receives notification on when a shipment arrives, either by the inject activity or from a forward activity. This reactor should find the best segment to enqueue the shipment onto. A segment could also have another reactor (SegmentReactor) that creates and schedules a forwarding activity if necessary. <br>
+<br>
+A forwarding activity (ForwardActivityReactor) should try to forward a shipment to the next location. If there are any additional Shipments left on the queue, the ForwardActivityReactor should automatically reschedule itself for the next execution.
+</p>
+
+<p>Also, you can find source code examples of how to use the Notifiee and Activity interface <a href="files">here.</a> You may use as much or as little code from these examples in your assignment as you wish.</p>
+
+<h2 id="starter_code">Additional starter code</h2>
+<p>Start from the code you developed for Assignment 2, and known issues
+with that code before going forward. You are encouraged to use the
+following files located in the <a href="files/">assignment source
+directory</a> for Parts 2 and 4:</p>
+<ul>
+<li>Activity.h: class Activity, class Activity::Manager
+(interfaces)</li>
+<li>ActivityImpl.h: class ActivityImpl, class ManagerImpl (stubs
+only)</li>
+<li>Notifiee.h: class RootNotifiee, class BaseNotifiee (complete)</li>
+<li>Nominal.h: Nominal template shown in class</li>
+</ul>
+
+<h2 id="clarifications">Select Clarifications from Previous Year</h2>
+<ul>
+  <li>The difference between the virtual time activity
+  manager and the real time activity manager is that the virtual time
+  activity manager does not wait (ie make any calls to sleep), while the
+  real time activity manager slows down the simulation to a more
+  human-preceptible timescale.</li>
+</ul>
+
+<h2 id="submission">Submission</h2>
+<p>Submit the assignment using the /usr/class/cs249a/bin/submit program.
+Your submission must include the following:</p>
+<ul>
+<li>Complete source code, including any starter code</li>
+<li>A Makefile that builds your code and the test programs containing
+your simulations from Part 6</li>
+<li>A README file that describes your solution to the assignment and
+discusses the simulation experiment results. Please
+include your SUNet ID in the format "user: <var>id</var>", where
+<var>id</var> is your SUNet ID on the first line of the README.</li>
+</ul>
+
+<p>You may re-submit as many times as you like. If you re-submit a
+file, the new version will overwrite the old one. Please make sure to submit
+your complete project directory, do not hand pick files to submit. We will
+go to your submission and type 'make'.</p>
+
+<h2 id="grading">Grading</h2>
+<ul>
+<li>25%: Class hierarchy and library design. Is it clear and appropriate,
+efficient, extendable, flexible, etc.</li>
+<li>25%: Programming style, readability.</li>
+<li>25%: Thorough yet concise documentation and explanation of test cases.
+<li>25%: Overall correctness of the class support. Does it work?</li>
+</ul>
+
+</body>
+</html>

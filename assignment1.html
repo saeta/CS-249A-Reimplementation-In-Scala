@@ -1,0 +1,648 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en">
+<head>
+    <meta name="generator"
+          content=
+          "HTML Tidy for Linux/x86 (vers 11 February 2007), see www.w3.org" />
+
+    <title>Assignment 2</title>
+    <meta http-equiv="Content-Type"
+          content="text/html; charset=us-ascii" />
+    <link rel="stylesheet"
+          href="http://www.w3.org/StyleSheets/Core/Steely"
+          type="text/css" />
+    <style type="text/css">
+<!--/* <![CDATA[ */
+    dfn { font-weight: bold; }
+    /* ]]> */-->
+    </style>
+</head>
+
+<body>
+    <h1>Assignment 2: Shipping Simulation</h1>
+
+    <h5>Milestone Due: Friday, October 28, 2011, at 11:59 PM</h5>
+
+    <h5>Assignment Due: Monday, November 7, 2011, at 11:59 PM</h5>
+
+<!--    <a href="#announcements">Announcements</a> | -->
+    <a href="#intro">Introduction</a> |
+    <a href="#terminology">Terminology</a> | 
+    <a href="#querying">Querying</a> |
+    <a href="#layered-structure">Layered Structure</a> | 
+    <a href="#middle-layer">Middle-Layer Interface</a> | 
+    <a href="#output-format">Output Format</a> | 
+    <a href="#programming-style">Programming Style</a> | 
+    <a href="#milestone-requirements">Milestone Requirements</a> | 
+    <a href="#submission">Submission</a> | 
+    <a href="#grading">Grading</a> | 
+    <a href="#files">Files</a> | 
+    <a href="#faq">FAQ</a>
+
+    <h2 id="announcements" style="display:none;">Announcements</h2>
+
+    <ul style="display:none;">
+        <li>9/19/2011: Review Session: Friday, October 21, 4:00PM-5:00PM in
+        Skilling 193. As before, this will be televised.</li>
+    </ul>
+
+    <h2 id="intro">Introduction</h2>
+
+    <p>In this and subsequent assignments, we are going to investigate the
+    simulation of a shipping business. Our simulation is going to simplify this
+    domain significantly and focus only on a small aspect of the business.
+    Nonetheless, this simulation will help us practice the fundamental
+    techniques of the modeling and simulation approach to development.</p>
+
+    <p>The shipping business is a service that transports packages from one
+    location to another. Your task is to design and implement a class library
+    that enables a client program to specify a configuration and query the
+    state of a shipping network. The configuration is specified in terms of
+    shipping entities, such as locations or connections, and the relationships
+    between them. While designing your library, keep in mind that in later
+    assignments you will have to extend it to simulate shipping behavior (i.e.,
+    shipments traveling from location to location). You also need to create a
+    sample client program that instantiates some connections and locations and
+    connects them together.</p>
+
+    <p>You will work in groups of two for this project.  Please be aware that
+    Assignment 3 builds on this assignment, so it would be wise to keep the
+    same group for both projects.  If you need to help finding a group, post 
+    to the class list or the newsgroup, or contact the TAs and we will match 
+    you with someone.</p>
+
+    <h2 id="terminology">Terminology</h2>
+
+    <ul>
+        <li>A <b><i>shipment</i></b> is one or more packages sent as a group.
+        All packages in a shipment start in one place and travel to the same
+        destination.</li>
+
+        <li>A <b><i>segment</i></b> is a connection from one location to
+        another. Each segment has the following attributes:
+
+            <ul>
+                <li><b><i>mode</i></b>: The vehicle type associated with the
+                segment. In this assignment, the modes are "truck", "boat", or
+                "plane".</li>
+
+                <li><b><i>source</i></b>: The location that the segment is
+                attached to. Packages transported along this segment originate
+                from the source.</li>
+
+                <li><b><i>length</i></b>: The length of the segment in
+                miles.</li>
+
+                <li><b><i>return segment</i></b>: The segment going in the
+                other direction, i.e., the segment whose source is this
+                segment's destination. In this assignment, for example, a road
+                between two locations is modeled as two segments, one for each
+                direction. Note that a segment can have a different length than
+                its return segment, but they must both be of the same
+                mode.</li>
+
+                <li><b><i>difficulty</i></b>: A float number between 1.0 and
+                5.0 representing the difficulty of traveling along the
+                segment.</li>
+
+                <li><b><i>expedite support</i></b>: Whether the segment
+                supports optional expedited shipping. Expiditing boosts vehicle
+                speed by 30% along the segment but increases the cost per mile
+                by 50%.</li>
+            </ul>
+        </li>
+
+        <li>A <b><i>location</i></b> is a place where segments converge, such
+        as an intermediate stop where a shipment might be transferred from one
+        vehicle type to another. Locations can be one of the following:
+
+            <ul>
+                <li>A <b><i>customer location</i></b> is a pickup or delivery
+                location &mdash; a place where a shipment either enters or
+                leaves the transportation network. Customer locations can
+                connect to any mode of transportation.</li>
+
+                <li>A <b><i>port</i></b> is a location at which a shipment can
+                be transferred between vehicles of different modes (or the same
+                mode). For example, a truck can drive to a port and transfer
+                its shipment to a boat.</li>
+
+                <li>A <b><i>terminal</i></b> is a location at which a shipment
+                is transferred from one segment to another segment of the
+                <i>same mode</i>. This means terminals are restricted to only
+                having segments of the same mode attached to them.</li>
+            </ul>
+        </li>
+
+        <li>A <b><i>fleet</i></b> represents the network-wide information about
+        the different modes of transportation. Fleet has the following
+        attributes for each mode of transportation:
+
+            <ul>
+                <li><b><i>speed</i></b> is the velocity of a vehicle of a given
+                mode of transportation, in miles per hour.</li>
+
+                <li><b><i>capacity</i></b> is the number of packages a vehicle
+                of a given mode of transportation can carry at a single
+                time.</li>
+
+                <li><b><i>cost</i></b> is the cost per mile of using a given
+                mode of transportation, in dollars, at segment difficulty 1.0.
+                The actual cost of traveling a mile along a segment is
+                cost*difficulty.</li>
+            </ul>
+        </li>
+
+        <li>A <b><i>path</i></b> is a sequence of locations and the segments
+        connecting them.</li>
+    </ul>
+
+    <p>A shipping network may include any number of the shipping entities,
+    where a shipping entity is either a location or a segment.</p>
+
+    <h2 id="querying">Querying the Shipping Network</h2>
+
+    <p>Your library should support the following query types:</p>
+
+    <ul>
+        <li><b><i>Statistics</i></b>: This tracks two kinds of attributes.
+        First, given a shipping entity type, return how many entities of that
+        type are present in the network. Second, it needs to be able to return
+        the percentage of all segments in the network that support expedited
+        shipping. You are <b>required</b> to update these attributes using the
+        notification/reactor model as presented in assignment 1.</li>
+
+        <li>
+            <b><i>Connectivity</i></b>: There are two query types:
+
+            <ul>
+                <li><!--<b>(Group only)</b>--> Given a starting location and a set of attributes with
+                constraints, return all paths from the starting location that
+                lie within the constraints. For example, the client could
+                specify "SFO distance 20 cost 500", and the command should
+                return all paths whose end location is 20 miles or less from
+                SFO and whose total cost is $500 or less.</li>
+
+                <li><!--<b>(Group only)</b>--> Given a start and end location, 
+                return a list of all paths between these two locations. For 
+                each path, also return the cost, time, and whether expedite 
+                support has been used or not.</li>
+<!--
+                <li><b>(Individual version only)</b> Given a starting location and
+                a distance, return all paths of that distance or less.  For example,
+                a connectivity query on starting location "port1" with distance
+                "100" should return all paths whose end locations are 100 miles or
+                less away from "port1."
+-->
+            </ul>
+        </li>
+
+        <li><b><i>Fleet</i></b>: Given a transportation mode, return its speed,
+        cost, or its capacity.</li>
+    </ul>The details of how these queries should be implemented are described
+    below.
+
+    <h2 id="layered-structure">Layered Structure</h2>
+
+    <p>We want the shipping system structured in three layers. The top layer is
+    the client program that sets up and queries a shipping network. We provide
+    a very simple client program to get you going. You also need to write your
+    own in order to test your library for more complicated configurations and
+    queries.</p>
+
+    <p>The client program can instantiate shipping entities and access or
+    change their attributes, but it only knows of each entity by a string name.
+    The operations requested by the client program are handled by a middle
+    layer. The interface exported by the middle layer to the client program is
+    a string-valued service (this interface was chosen for greatest flexibility
+    and support for a wide range of user interfaces). We provide the interface
+    for this middle layer, and you are responsible for the implementation.</p>
+
+    <p>The operations requested by the middle layer are handled by the lowest
+    layer, which we refer to as the "engine." It is this lowest layer that
+    keeps all necessary state; e.g., for each port created by the client
+    program, there must be an engine object that stores the port's name, the
+    segments that list it as a source, and so on. The interface exported by the
+    engine layer to the middle layer is private to your library, so you are
+    free to design it any way you want, as long as you adhere to the principles
+    taught in class. You are responsible for both the interface and
+    implementation of the engine layer.</p>
+
+    <h2 id="middle-layer">Middle-Layer Interface</h2>
+
+    <p>We refer to the middle layer as the "rep" layer because it represents
+    the client requests to the engine and represents the engine state to the
+    client.</p>
+
+    <p>The client program does not directly create or manage engine objects.
+    Instead, a client must create and manage Instance objects provided by the
+    rep layer. The client program retrieves an Instance object, and then
+    reads or writes its attributes through the string-based interface desribed
+    below. In other words, Instance objects handle the conversion between the
+    string-based interface and the engine objects. Each Instance object has an
+    entity type which defines the object's attributes.</p>
+
+    <p>To create a new Instance object, the client program passes the
+    Instance's global name and entity type to Instance::Manager::instanceNew().
+    If the client attempts to create an instance using instanceNew()
+    with a name that already exists, then instanceNew() should return null.
+    To get a pointer to an existing Instance object, the client program passes
+    the Instance's absolute name to Instance::Manager::instance(). Finally, to
+    read or write an attribute for an Instance, the client program uses
+    Instance::attribute() and Instance::attributeIs(). Some attributes accept a
+    limited set of values. It is up to you to see that these constraints are
+    maintained. Invalid writes should be discarded with an error message
+    printed to the standard error (stderr or cerr).</p>
+
+    <p>Each entity type can be categorized as a Location, Segment, Statistics,
+    Fleet, or Connectivity. The valid attributes for each entity type are listed
+    below.</p>
+
+    <h3>Location</h3>
+
+    <p>Entity types: "Customer", "Port", "Truck terminal", "Boat terminal",
+    "Plane terminal". Allowed attributes: "segment1", "segment2", "segment3",
+    etc.</p>
+
+    <p>Each location must track the segments for which it is the source. The
+    client accesses these segments based on a number ID determined by the order
+    segments are attached to the location. Suppose we attach "segA", "segB",
+    and "segC" to a terminal "myTerm" (in that order).  The command
+<pre>
+myTerm-&gt;attribute("segment2")
+</pre>
+    should return "segB". If a
+    segment is detached from a location, the segments after it are shifted.
+    Continuing the above example, if we detach "segB" from "myTerm", then the
+    call
+<pre>
+myTerm-&gt;attribute("segment2")
+</pre> 
+    returns "segC" instead. Since the
+    segment attribute is determined by order of segment attachment, it is
+    read-only. Therefore, to attach a segment to a location, you must use the
+    "source" segment attribute listed below.</p>
+
+    <h3>Segment</h3>
+
+    <p>Entity types: "Truck segment", "Boat segment", "Plane segment." Allowed
+    attributes:</p>
+
+    <ul>
+        <li>"source": The global name of the source location.</li>
+
+        <li>"length": In miles, nonnegative, and remember to use the Ordinal
+        Value Type.</li>
+
+        <li>"return segment": The global name of the return segment, or the
+        empty string (""). If you have 2 segments, seg1 and seg2, and you set
+        the return segment of seg1 to seg2, then seg2's return segment should
+        also be implicitly set to seg1. If you then set seg1's return segment
+        to "", then seg2's return segment should implicitly be set to ""
+        also.</li>
+
+        <li>"difficulty": <b><!--(Group only)--></b> A float number between 1.0 and 5.0 representing the
+        difficulty of traveling along the segment.</li>
+
+        <li>"expedite support": <!--<b>(Group only)</b>--> Either "yes" or "no."</li>
+    </ul>
+
+    <h3>Statistics</h3>
+
+    <p>Entity type: "Stats." Allowed attributes:</p>
+
+    <ul>
+        <li>Any Location entity type or Segment entity type is a valid
+        attribute, and the attribute value is the number of instances of that
+        type present in the system. For instance, a read on attribute
+        "Customer" must return "2" if there are 2 customer locations in the
+        shipping network.</li>
+
+        <li>"expedite percentage": <!--<b>(Group only)</b>--> The percentage of segments in the network
+        that support expediting.</li>
+    </ul>
+
+    <h3>Connectivity</h3>
+
+    <p>Entity type: "Conn." Allowed attributes:</p>
+
+    <ul>
+        <li>Any string of the form "explore <var>loc0</var> : <var>att0</var>
+        <var>v0</var> <var>att1</var> <var>v1</var> ...", where <var>loc0</var>
+        is the name of the starting location, each attN is one of the
+        attributes listed below, and <var>vN</var> is a value of attN. The
+        possible attributes are:
+
+            <ul>
+                <li>"distance": The maximum distance of a path</li>
+
+                <li>"cost": <!--<b>(Group only)</b>--> The maximum total cost of the path</li>
+
+                <li>"time": <!--<b>(Group only)</b>--> The maximum total time to send a package along the
+                path</li>
+
+                <li>"expedited": <!--<b>(Group only)</b>--> Every segment along the path must have expedite
+                support, and cost and time are calculated using expediting.
+                This attribute has no value associated with it</li>
+            </ul>The attribute value is a string of one or more lines, each of
+            which describes a path in the format:
+            <pre>
+
+loc0(seg0:len0:seg0') loc1(seg1:len1:seg1') ... locn
+
+</pre>See the <a href="#output-format">Output Format</a> for more details.
+        </li>
+
+        <li><!--<b>(Group only)</b>--> Any string of the form "connect <var>loc0</var> : <var>loc1</var>".
+        The attribute value is a string of one or more lines, each of which
+        describes a path in the format:
+            <pre>
+
+cost time expedited; loc0(seg0:len0:seg0') loc1(seg1:len1:seg1') ... locn
+
+</pre>where <var>cost</var> is the path cost, <var>time</var> is the time to
+traverse the path, and <var>expedited</var> is either "yes" or "no". The other
+values are as stated above. See the <a href="#output-format">Output Format</a>
+section for more details.
+        </li>
+    </ul>
+
+    <p>Here are some sample Connectivity queries:</p>
+
+    <ul>
+        <li>"explore SFO : cost 500 distance 100 expedited time 12". This
+        should return a list of expedited paths that cost &le; $500, and take
+        &le; 12 hours to reach locations that are &le; 100 miles from SFO.</li>
+
+        <li>"explore LAX : distance 300 time 5". This should return all paths
+        that, without expedite shipping, take &le; 5 hours to get locations
+        that are &le; 300 miles from LAX.</li>
+    </ul>
+
+    <p>A path between two locations is always either entirely expedited
+    or entirely unexpedited. This means that if you are exploring
+    expedited paths, you should not consider any segment that does not
+    support expediting. However, if you are exploring unexpedited
+    paths, you can still explore segments that support expediting since
+    this only indicates that expediting is an option.</p>
+
+    <h3>Fleet</h3>
+
+    <div style="margin-left: 2em">
+        <p>Entity type: "Fleet". Allowed attributes: Any string of the form
+        "<var>mode</var>, <var>property</var>", where <var>mode</var> is one of
+        "Truck", "Boat" or "Plane", and <var>property</var> is either "speed",
+        "cost", or "capacity". The attribute value is either the speed in miles
+        per hour, cost in dollars per i mile, or capacity in packages,
+        respectively. They should be nonnegative and implemented with the
+        ordinal type.</p>
+    </div>
+
+    <h3>Error Handling</h3>
+
+    <p>In general, if the client program requests an incorrect operation, you
+    should ignore the request and print an error to stderr. A client operation
+    is incorrect in the following cases:</p>
+
+    <ul>
+        <li>It involves an incompatible type-attribute pair, such as trying to
+        read "speed" from a port.</li>
+
+        <li>It attempts to set an attribute to an invalid value, such as
+        Instance::attributeIs("distance", "-1").</li>
+
+        <li>It attempts to connect two incompatible segments, such as trying to
+        connect an instance of type "Truck segment" to an instance of type
+        "Plane segment."</li>
+
+        <li>All instances should have unique user-defined names. It is an error
+        to create an instance using the name of an existing instance.</li>
+    </ul>
+
+    <h3>Additional Information</h3>
+
+    <p>Instances of type "Stats", "Conn" or "Fleet" are special in the
+    following ways:</p>
+
+    <ol>
+        <li>There cannot be more than one "Stats", one "Conn", and one "Fleet"
+        Instance. You should create them when Instance::Manager::instanceNew() 
+        is called the first time, and then fetch them through Instance::Manager::instance() 
+        using their names. If the client attempts to create a second instantiation
+        of any of these classes with a different name, just return the pre-existing instance.
+        </li>
+
+        <li>The attributes of "Stats" and "Conn" are read-only &mdash; writes
+        can be quietly discarded. This restriction does not apply to
+        "Fleet".</li>
+    </ol>
+
+    <p>You may assume that user-defined absolute names will be at most 50
+    characters long.</p>
+
+    <h2 id="output-format">Output Format</h2>You are required to follow the
+    output format for attribute values detailed below. Any deviation from this
+    format will result in lost points.
+
+    <h3>Numeric Format</h3>
+
+    <p>For each numeric value, output the result as a string with no linebreaks
+    or whitespace. For instance, if there are 10 Truck segments in the shipping
+    network, a stats query for "Truck segment" should result in the output
+    <i>"10"</i>.</p>
+
+    <p>Notice that there are <b>neither leading nor trailing whitespaces</b>.
+    Integer-only numbers (such as a capacity attribute) should be printed
+    without a decimal, but floating-point types (such as MPH) should always be
+    printed with 2 decimal digits (rounded).</p>
+
+    <p>The value of the "expedite percentage" attribute should be between 0.00
+    and 100.00 and rounded to 2 decimal points. For instance, if there are 3
+    out of 7 expediting segments, output <i>"42.86"</i>. Note that <b>there is
+    no % symbol</b>. In any case, <b>do not output extra lines</b>.</p>
+
+    <h3>Connectivity Format</h3>
+
+    <p>For both <i>connect</i> and <i>explore</i> queries, the paths should not
+    visit a location more than once. Also, if there is more than one path to
+    the same location, then all the paths should be returned, with each path on
+    its own line.</p>
+
+    <p>Here is a sample <i>explore</i> output with two possible paths from loc0
+    to loc3:<br /></p>
+    <pre>
+loc0(seg0:len0:seg0')<b>^</b>loc1(seg1:len1:seg1')<b>^</b>loc2(seg2:len2:seg2')<b>^</b>loc3<b>$</b>
+loc0(seg3:len3:seg3')<b>^</b>loc3<b>$</b>
+</pre>
+
+    <p>and here is a sample <i>connect</i><!--<b>(Group only)</b>--> output with two possible paths from
+    loc0 to loc3:<br /></p>
+    <pre>
+cost<b>^</b>time<b>^</b>expedited;<b>^</b>loc0(seg0:len0:seg0')<b>^</b>loc1(seg1:len1:seg1')<b>^</b>loc2(seg2:len2:seg2')<b>^</b>loc3<b>$</b>
+cost<b>^</b>time<b>^</b>expedited;<b>^</b>loc0(seg3:len3:seg3')<b>^</b>loc3<b>$</b>
+</pre>In the examples above, <b>^ is a single space</b> and <b>$ is a single
+newline</b> (don't actually print ^ or $!). There should be no other leading or
+trailing whitespace. Note that, as a floating-point value, the lengths should
+be printed to 2 decimals.
+
+    <h2 id="programming-style">Programming Style</h2>
+
+    <p>You are expected to read and apply the material of Chapters 1 through 4
+    to this assignment. Use the attribute-based approach described in Chapter
+    2.</p>
+
+    <p>We are providing a client program which should aid you in testing your
+    library. We encourage you to exercise any specified library services that
+    our client program does not invoke (by modifying the test client or
+    replacing it with your own client program), as they will be exercised
+    during the grading of this assignment.</p>
+
+    <p>Try to model your code as a shared library. This means that any test
+    programs you write must use the shippingInstanceManager() entry point to
+    get a handle on the Shipping::Manager object, and after that must only use
+    the interface specified in the Instance.h header file we provided. The code
+    links as a static executable because this will be much easier for you to
+    debug, but our goal is to design code that could be loaded as a shared
+    library.</p>
+
+    <p>This assignment is not meant to test error handling, so you may handle
+    unanticipated errors (e.g., running out of memory) by any reasonable means
+    you choose. One good way is to use exceptions &mdash; but we have not
+    covered them yet in class. An alternative is to print an error message to
+    stderr and attempt to continue on. Please indicate the method you use for
+    handling unanticipated errors in your README file.</p>
+
+    <p>Another important issue not tested in this assignment is memory
+    management. Although not covered yet in class, you are strongly encouraged
+    to use the smart pointer reference counting technique from Chapter 5 of
+    your course reader. We provided you with the relevant source code in
+    Assignment 2 and will give plenty of examples, so don't worry &mdash; smart
+    pointers are easy to use and will not get in the way.</p>
+
+    <h2 id="milestone-requirements">Milestone Requirements</h2>
+
+    <p>You will be required to come up with a description of the interface you
+    will implement between the rep and engine layers. You need to provide a
+    list of classes, their attributes, and the public methods exposed to the
+    rep layer by the engine. None of those methods need to be implemented at
+    this point, we are only concerned with the design of the interface for the
+    milestone. This is due Friday, October 28, but we encourage you to finish
+    it and submit it to us as soon as you can so that we can provide feedback
+    and you can start the implementation as soon as possible. Please type this
+    up and attach it in an email to the course staff list
+    (cs249a-staff@cs.stanford.edu). This interface does not need to
+    be perfect, and you may modify it after you turn it in, we just want to
+    make sure you're heading in the right direction.</p>
+
+    <p>Additionally, you are required to have your teams fixed by this point.
+    Please include your partner's name in the email submission.</p>
+
+    <h2 id="submission">Submission</h2>
+
+    <p>Only one group member needs to submit the final code. Submit the
+    assignment using the /usr/class/cs249a/bin/submit program. Your submission
+    must include the following:</p>
+
+    <ul>
+        <li>Complete source code, including the sample client program</li>
+
+        <li>A Makefile that builds your code and the sample client program.
+        <b>Update:</b> The Makefile must have a target for a program named
+        "test1" that builds using "test1.cpp", with "test1.cpp" containing
+        main().  The starter Makefile already does this, so take care when 
+        modifying it.</li>
+
+        <li>A README file that describes your class hierarchy and analyzes the
+        design issues that affect your class library. Please include on the
+        first line the submitting student's SUNet ID in the format "user:
+        <var>id</var>", where <var>id</var> is your SUNet ID. The second line
+        of the README should be the non-submitting partner's SUNet ID in the
+        same format.</li>
+    </ul>
+
+    <p>The source bundle for this assignment includes the Instance.h header
+    file, which is the immutable contract between the client code and the rep
+    layer, and also some sample code in Instance.cpp, which is intended as a
+    starting point for you, and which you will need to change!</p>
+
+    <p>You may re-submit as many times as you like. If you re-submit a file,
+    the new version will overwrite the old one.</p>
+
+    <h2 id="grading">Grading</h2>
+
+    <ul>
+        <li>10%: Reasonable submission for milestone. This will be credit/no
+        credit.</li>
+
+        <li>40%: Class hierarchy and library design. Is it clear and
+        appropriate, efficient, extendable, flexible, etc.</li>
+
+        <li>25%: Programming style, readability, and documentation.</li>
+
+        <li>25%: Overall correctness of the class support. Does it work?</li>
+    </ul>
+
+    <h2 id="files">Files</h2>
+
+    <p>Download the starter files for this project <a href="files">here</a></p>
+
+    <h2 id="faq">Frequently Asked Questions</h2>
+
+    <ul>
+        <li>Here is an example of how to use the Nominal or Ordinal types:
+            <pre>
+
+        class Mile : public Nominal&lt;Mile, unsigned int&gt; {
+        public:
+                Mile(unsigned int num) : Nominal&lt;Mile, unsigned int&gt;(num) {
+                        //can do additional checks on bounds here
+                }
+        };
+
+        ...
+
+        class Segment {
+        private:
+                Mile distance_;
+        public:
+                //initialization of distance_ is required.
+                Segment() : distance_(1) {
+                        //Segment constructor stuff...
+                }
+        };
+
+        
+</pre>
+        </li>
+
+        <li>Since the segmentN attribute of a location is read-only (at least
+        from the client side) the only way to have this set is to set the
+        source attribute of a segment. This should implicitly assign that
+        segment to the greatest unused number. For example, if loc3 has 3
+        segment already attached to it, and we do this:
+            <pre>
+
+        seg4-&gt;attributeIs("source", "loc3");
+        
+</pre>then the segment4 attribute of loc3 will return seg4. If the source
+attribute of a segment is set to null, this has the effect of also removing the
+segment from the location, ie:
+            <pre>
+
+        seg3-&gt;attributeIs("source", "");
+        
+</pre>The location should "shift-down" the segment numbers to fill in the gaps.
+In this case,
+            <pre>
+
+        loc3-&gt;attribute("segment3");
+        
+</pre>now will return seg4.
+        </li>
+    </ul>
+</body>
+</html>
