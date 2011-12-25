@@ -26,7 +26,7 @@ class Fleet {
         val newPaths = for {
           s <- query.start.segs
           if !newExcludeSet.contains(s.dst)
-          path <- exploreRec(query(s), newExcludeSet)
+          path <- exploreRec(query --- s, newExcludeSet)
         } yield s :: path
         val basicPaths = for {
           s <- query.start.segs
