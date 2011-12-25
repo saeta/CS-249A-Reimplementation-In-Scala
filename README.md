@@ -15,3 +15,5 @@ changes. Because I'm not interfacing with a rep-layer as in the assignment,
 that has been removed. Further, "introducing exception based handling" has been
 removed, because it is also non-sensical, as I used exception-based handling
 already (in minimal fashion).
+
+This code is, unfortunately, not my best. Please don't judge me!
