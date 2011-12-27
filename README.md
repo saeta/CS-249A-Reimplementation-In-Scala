@@ -23,7 +23,6 @@ Programming In Scala, 1st Edition by Martin Odersky available on the web at:
 (http://www.artima.com/pins1ed/)
 
 ### Notes from front lines ###
-
 One of the points of the the course (CS249A) was to impress upon the
 scalability and maintainability of a codebase. I think the course failed in
 that regards, simply due to the huge amount of code required to write a
@@ -35,3 +34,10 @@ scales better simply due to the fact that it's a fraction of the size.
 Where am I? I have most of the basic machinery for the simulation. Problems
 that need to be addressed: creating the shipments, stats, tests! Anything else?
 Who knows... But right now, it's time for bed.
+
+### Better and Worse ###
+Each of the different implementations have different strengths and weaknesses.
+For example, in the Scala version, I fleshed out the abstract data types
+(such as Length, Time, Cost) in Scala, whereas they were not very fleshed out
+in the C++ implementation. The Scala version, however, does not have the
+string-based API required of the C++ implementation.
