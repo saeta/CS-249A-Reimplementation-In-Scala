@@ -20,7 +20,6 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
   def act() {
     loop {
       react {
-        case Stop => exit()
         case Ping(time) =>
           // We can send at soonest the next time slot.
           nextAvailableTime = math.max(time + 2, nextAvailableTime)

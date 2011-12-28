@@ -16,6 +16,7 @@ class Fleet {
 
   val segs = scala.collection.mutable.Set[Segment]()
   val locs = scala.collection.mutable.Set[Location]()
+  val schd = scala.collection.mutable.Set[ShipmentSchedule]()
   
   val clock = new Clock(this)
   var completedShipments = 0 // TODO: better stats for shipments

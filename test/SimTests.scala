@@ -23,8 +23,6 @@ class SimTests extends FunSuite with BeforeAndAfter with ShouldMatchers {
     c2 = Location(fleet, "c2", CUST)
     p1 = Location(fleet, "p1", PORT)
     p2 = Location(fleet, "p2", PORT)
-    c1.other = c2
-    c2.other = c1
     
     c1_p1 = Segment(fleet, c1, p1, TRUCK, Length(4))
     p1_c1 = Segment(fleet, p1, c1, TRUCK, Length(4))
@@ -34,21 +32,28 @@ class SimTests extends FunSuite with BeforeAndAfter with ShouldMatchers {
     p2_c2 = Segment(fleet, p2, c2, TRUCK, Length(4))    
   }
   
+  def setSimpleShipmentSchedules() {
+    new SimpleSchedule(fleet, c1, c2)
+    new SimpleSchedule(fleet, c2, c1)
+  }
+
   test("Basic") {
+    setSimpleShipmentSchedules()
     fleet.clock.stopTIme = 30
     fleet.clock ! Start(self)
-    (self.receive { case DONE => true }) should be (true)
+    (self.receive { case Done => true }) should be (true)
     fleet.completedShipments should be (12)
   }
   
   test("Restart") {
+    setSimpleShipmentSchedules()
     fleet.clock.stopTIme = 10
     fleet.clock ! Start(self)
-    (self.receive { case DONE => true}) should be (true)
+    (self.receive { case Done => true}) should be (true)
     
     fleet.clock.stopTIme = 30
     fleet.clock ! Start(self)
-    (self.receive { case DONE => true}) should be (true)
+    (self.receive { case Done => true}) should be (true)
     fleet.completedShipments should be (12)
   }
 }

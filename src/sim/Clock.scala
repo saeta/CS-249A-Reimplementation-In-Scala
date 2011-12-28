@@ -11,8 +11,7 @@ case class WorkItem(time: Int, msg: Any, target: Actor)
 case class AfterDelay(delay: Int, msg: Any, target: Actor)
 
 case class Start(main: Actor)
-case object Stop
-case object DONE
+case object Done
 
 /**
  * Clock object to be used in virtual-time simulation of the shipping network.
@@ -34,7 +33,7 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   def log(msg: => String) = if (verbose) println(msg) // Hacky logging.
   def stillRunning = running
   def allSimulants: Iterable[Actor] = 
-    fleet.segs ++ fleet.locs.filter(_.lt == CUST)
+    fleet.segs ++ fleet.schd
     
   def act() {
     loop {
@@ -46,12 +45,11 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   def advance() {
     if (agenda.isEmpty && currentTime > 0 && currentTime >= stopTIme) {
       log("** Agenda empty. Clock exiting at time " + currentTime + ".")
-      main ! DONE
+      main ! Done
       return
     }
     currentTime += 1
     log("Advancing to time " + currentTime)
-    
     processCurrentEvents()
     for (sim <- allSimulants) sim ! Ping(currentTime)
     busySimulants = Set.empty ++ allSimulants
@@ -79,13 +77,10 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
         assert(busySimulants contains sim)
         busySimulants -= sim
         
-      case Start(m) => running = true; main = m
+      case Start(m) =>
+        running = true
+        main = m
       
-      case Stop =>
-        for (sim <- allSimulants)
-          sim ! Stop
-        exit()
-        
     }
   }
   
