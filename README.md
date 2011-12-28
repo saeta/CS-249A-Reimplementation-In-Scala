@@ -165,6 +165,8 @@ There are a few things to add to this project:
  - More statistics on shipments.
  - Segment capacity
  - More fleshed out ADTs for capacity, and shipment sizes. 
+ - Convert this project to an SBT project (yet make sure it still works nicely
+   with Eclipse)
 
 One other future thought is to combine the clock and fleet. They're really
 one in the same, separated only by the fact that they have slightly different
