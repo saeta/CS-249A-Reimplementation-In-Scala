@@ -28,7 +28,7 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   private var agenda: List[WorkItem] = List()
   private var busySimulants: Set[Actor] = Set()
   
-  var stopTIme = 0
+  var stopTime = 0
   
   def log(msg: => String) = if (verbose) println(msg) // Hacky logging.
   def stillRunning = running
@@ -43,7 +43,7 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   }
   
   def advance() {
-    if (currentTime >= stopTIme) {
+    if (currentTime >= stopTime) {
       log("** Clock pausing at time " + currentTime + ".")
       main ! Done
       return
@@ -78,9 +78,10 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
         busySimulants -= sim
         
       case Start(m, stopT) =>
+        assert(stopT > stopTime)
         running = true
         main = m
-        stopTIme = stopT
+        stopTime = stopT
       
     }
   }
