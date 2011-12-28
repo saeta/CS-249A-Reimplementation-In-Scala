@@ -1,14 +1,14 @@
 package sim
 import scala.actors.Actor
 import scala.actors.Actor.self
-import entity.Fleet
-import entity.CUST
+import entity._
 
 case class Ping(time: Int)
 case class Pong(time: Int, from: Actor)
 
 case class WorkItem(time: Int, msg: Any, target: Actor)
 case class AfterDelay(delay: Int, msg: Any, target: Actor)
+case class ShipmentArrived(s: Shipment)
 
 case class Start(main: Actor, stopTime: Int)
 case object Done
@@ -29,6 +29,7 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   private var busySimulants: Set[Actor] = Set()
   
   var stopTime = 0
+  start()
   
   def log(msg: => String) = if (verbose) println(msg) // Hacky logging.
   def stillRunning = running
@@ -71,18 +72,19 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
         agenda = insert(agenda, item)
         
       case item: WorkItem => agenda = insert(agenda, item)
-        
+
       case Pong(time, sim) =>
         assert(time == currentTime)
         assert(busySimulants contains sim)
         busySimulants -= sim
-        
+
       case Start(m, stopT) =>
         assert(stopT > stopTime)
         running = true
         main = m
         stopTime = stopT
-      
+
+      case ShipmentArrived(s) => fleet.completedShipments += 1
     }
   }
   
@@ -90,6 +92,4 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
     if (ag.isEmpty || item.time < ag.head.time) item :: ag
     else ag.head :: insert(ag.tail, item)
   }
-  
-  start()
 }

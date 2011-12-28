@@ -162,8 +162,14 @@ developer productivity.
 There are a few things to add to this project:
 
  - A real-time scheduler.
+ - More statistics on shipments.
  - Segment capacity
  - More fleshed out ADTs for capacity, and shipment sizes. 
+
+One other future thought is to combine the clock and fleet. They're really
+one in the same, separated only by the fact that they have slightly different
+concerns. The fleet is holding metadata about the network, while the clock is
+dealing with the semantics of the simulation.
 
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
