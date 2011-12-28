@@ -31,7 +31,7 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
   }
   
   def handleSimMessage(msg: Any) = msg match {
-    case shp @ Shipment(_, _, dst, size) =>
+    case shp: Shipment =>
       shp.moved()
       if (this.dst == shp.dst) shp.completed()
       else {
