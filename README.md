@@ -53,5 +53,15 @@ relatively simple simulation (4000 for assignment 1, 8000 for assignment 2).
 I'm not convinced the Scala solution is much more extensible, but perhaps it
 scales better simply due to the fact that it's a fraction of the size.
 
+### Adding GraphViz support ###
+Admittedly, I found adding, and testing support for graphviz to be a snap. When
+I implemented in C++, I wrote a ton of different tests, broke things out to try
+and make things more testable, and was fairly frustrated for a few hours on how
+to support it. Perhaps because I had that experience, or perhaps also due to
+the features of the language, writing the GraphViz support was a snap. The
+longest time I spent was debugging the test. (Ended up being a typo in spelling
+out the comment on the first line. :-D)
+
+
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
