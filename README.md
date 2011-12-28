@@ -6,6 +6,18 @@ Project started: December 2011
 This is a project to re-implement a frustrating assignment in C++ for Professor
 Cheriton's class (CS249A at Stanford).
 
+Tickets, and other tracking information available on [PivotalTracker][tracker].
+I've been playing around and am using that for the time being. Unfortunately,
+while it has better features than the GitHub tracker, it doesn't have as nice
+integration. So my quest for the ideal project management system continues...
+
+This code is, unfortunately, not my best. Please don't judge me! This is my
+first serious foray into Scala, and I'm re-implementing just for fun.
+
+Inspiration for the actors and concurrency parts of this have been taken from
+[Programming In Scala, 1st Edition by Martin Odersky][pis1ed].
+
+# Background #
 The assignment is sourced from [the CS249A website][cs249a] I have copied it
 down into the assignment directory so that the assignment details last beyond
 the quarter in which I took CS249A. (Note: the web pages were available to the
@@ -17,11 +29,6 @@ changes. Because I'm not interfacing with a rep-layer as in the assignment,
 that has been removed. Further, "introducing exception based handling" has been
 removed, because it is also non-sensical, as I used exception-based handling
 already (in minimal fashion).
-
-This code is, unfortunately, not my best. Please don't judge me!
-
-Inspiration for the actors and concurrency parts of this have been taken from
-[Programming In Scala, 1st Edition by Martin Odersky][pis1ed].
 
 # Design Overview: A view from 10,000 feet #
 The code is split up into a few packages. The most important one is probably
@@ -96,3 +103,4 @@ write some debugging code, and I quickly figured out the problem.
 
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
+[tracker]: https://www.pivotaltracker.com/projects/441541 "CS249A in Scala - Tracker"
