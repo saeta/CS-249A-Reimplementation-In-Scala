@@ -18,17 +18,45 @@ Inspiration for the actors and concurrency parts of this have been taken from
 [Programming In Scala, 1st Edition by Martin Odersky][pis1ed].
 
 # Background #
+In Fall 2011, I took [CS249A][cs249a]. The second two assignments (which I
+have named assignments 1 and 2) were very tiresome and frustrating to write.
+One of the reasons they were so frustrating is because they were implemented
+in C++, in a special *Cheriton* style. In sum, the two assignments took about
+8,000 lines of C++ to fully implement. I found myself very frustrated with the
+methodology used in the class.
+
+The class raised very important points vis-a-vis software engineering. I
+considered issues I hadn't taken much thought before. Professor Cheriton is
+absolutely right in bringing these issues up, and trying to come up with a
+workable methodology. I simply don't think he has the right solution, yet.
+After a productive 45 minute chat on the last day of class, I decided to
+re-implement the assignments in Scala using Actors, to see if that yielded
+a more satisfactory software engineering experience. This is the fruit of that
+labor.
+
 The assignment is sourced from [the CS249A website][cs249a] I have copied it
 down into the assignment directory so that the assignment details last beyond
 the quarter in which I took CS249A. (Note: the web pages were available to the
 public, and were not behind Web-Auth, so I feel justified storing them in this
 repository. Accessed: 1:10am 12/25/11)
 
+## Personal Goals ##
+I wanted to work on this project both to better develop my thoughts and
+opinions on Cheriton's software engineering methodology, and to learn Scala,
+play with Scala tools, play with Github, (learn Markdown,) and save myself from
+utter and complete boredom during Winter Break.
+
+## Caveats ##
 In translating this assignment from C++ to Scala, there have been a few
 changes. Because I'm not interfacing with a rep-layer as in the assignment,
 that has been removed. Further, "introducing exception based handling" has been
 removed, because it is also non-sensical, as I used exception-based handling
 already (in minimal fashion).
+
+Further, because I worked with 2 partners, we had to implement an extra
+extension. (Normally group sizes are 2 people.) The extension we added is a
+visualization component, where we could output the shipping network to a
+graphviz file, which could then be transformed into pretty pictures.
 
 # Design Overview: A view from 10,000 feet #
 The code is split up into a few packages. The most important one is probably
@@ -98,8 +126,44 @@ and make things more testable, and was fairly frustrated for a few hours on how
 to support it. Perhaps because I had that experience, or perhaps also due to
 the features of the language, writing the GraphViz support was a snap. The
 longest time I spent was debugging the test. (Ended up being a typo in spelling
-out the comment on the first line. :-D) The full APIs allowed be to quickly
-write some debugging code, and I quickly figured out the problem.
+out the comment on the first line. :-D) The rich Scala APIs allowed be to
+quickly write some debugging code, and I quickly figured out the problem.
+
+In comparison, the C++ implementation required changing the whole object
+hierarchy to support the double-dispatch callback mechanism. I really dislike
+that approach because it requires tight coupling in the object hierarchy. It's
+a cute solution, but it's unfortunately not the most sustainable, ideal
+implementation of handling these sorts of application requirements.
+
+Note: for those who are reading this and haven't taken CS249A, Double dispatch
+is Professor Cheriton's method for implementing methods that would normally
+have a verb as their name. Professor Cheriton advocates an attribute-only
+interface. A method, such as `printSelfToStdOut()` would instead be a functor
+and the receiving object above would also be a functor, whose `apply` method
+would simply call the functor passing in itself.
+
+# Conclusions #
+Having rewritten almost everything, I am very pleasantly surprised at how easy
+it was to:
+
+ - Pick up Scala ([Programming In Scala][pis1ed] is a huge leg up. I'm glad it
+   has been made available publicly.)
+ - Set up the tools (thanks to Typesafe's freely available stack)
+ - Write and refactor Scala thanks to the Scala-IDE
+
+The Scala implementation took a fraction of the man hours, and I think is
+much more simple than the C++ implementation. The Scala implementation comes in
+around 400 lines of code (excluding tests; 200 more lines for tests), a factor
+of 20 less. While Scala is a much richer language with much more complex
+features, I think Scala is a huge win in terms of maintainability, flexibility,
+and developer productivity.
+
+## Future work ##
+There are a few things to add to this project:
+
+ - A real-time scheduler.
+ - Segment capacity
+ - More fleshed out ADTs for capacity, and shipment sizes. 
 
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
