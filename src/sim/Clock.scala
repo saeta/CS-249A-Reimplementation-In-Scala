@@ -22,7 +22,7 @@ case object DONE
  * http://www.artima.com/pins1ed/actors-and-concurrency.html
  * 
  */
-class Clock(fleet: Fleet) extends Actor { clock=>
+class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   private var running = false
   private var currentTime = 0
   private var main: Actor = _
@@ -31,6 +31,7 @@ class Clock(fleet: Fleet) extends Actor { clock=>
   
   var stopTIme = 0
   
+  def log(msg: => String) = if (verbose) println(msg) // Hacky logging.
   def stillRunning = running
   def allSimulants: Iterable[Actor] = 
     fleet.segs ++ fleet.locs.filter(_.lt == CUST)
@@ -44,12 +45,12 @@ class Clock(fleet: Fleet) extends Actor { clock=>
   
   def advance() {
     if (agenda.isEmpty && currentTime > 0 && currentTime >= stopTIme) {
-      println("** Agenda empty. Clock exiting at time " + currentTime + ".")
+      log("** Agenda empty. Clock exiting at time " + currentTime + ".")
       main ! DONE
       return
     }
     currentTime += 1
-    println("Advancing to time " + currentTime)
+    log("Advancing to time " + currentTime)
     
     processCurrentEvents()
     for (sim <- allSimulants) sim ! Ping(currentTime)
@@ -57,16 +58,10 @@ class Clock(fleet: Fleet) extends Actor { clock=>
   }
   
   def processCurrentEvents() {
-    println("pre-agenda => " + agenda)
     val todoNow = agenda.takeWhile(_.time <= currentTime)
-    println("todoNow => " + todoNow)
     agenda = agenda.drop(todoNow.length)
-    println("post-agenda => " + agenda)
     for (WorkItem(time, msg, target) <- todoNow) {
-      if (!(time == currentTime)) {
-        println("ERROR! Curtime is: " + currentTime + ", dealing with item @ "
-            + time + ", targeting actor: " + target)
-      }
+      assert(time == currentTime)
       target ! msg
     }
   }
@@ -77,10 +72,7 @@ class Clock(fleet: Fleet) extends Actor { clock=>
         val item = WorkItem(currentTime + delay, msg, target)
         agenda = insert(agenda, item)
         
-      case item: WorkItem => {
-        println("Inserting Workitem => " + item)
-        agenda = insert(agenda, item)
-      }
+      case item: WorkItem => agenda = insert(agenda, item)
         
       case Pong(time, sim) =>
         assert(time == currentTime)

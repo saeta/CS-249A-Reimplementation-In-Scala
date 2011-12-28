@@ -20,7 +20,6 @@ case class Location(fleet: Fleet, name: String, lt: LocType = PORT)
   def sendMessages() {
     if (!(other eq null)) {
       val newShip = Shipment(fleet, this, other, 3)
-      println("Sending new messages...")
       fleet.clock ! AfterDelay(1, newShip, newShip.next)
     }
   }
