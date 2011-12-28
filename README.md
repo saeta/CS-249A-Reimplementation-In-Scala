@@ -1,6 +1,8 @@
-# Hello world! #
+# CS 249A Re-implementation in Scala #
 Author: saeta@cs.stanford.edu
+Project started: December 2011
 
+# Overview #
 This is a project to re-implement a frustrating assignment in C++ for Professor
 Cheriton's class (CS249A at Stanford).
 
@@ -21,14 +23,43 @@ This code is, unfortunately, not my best. Please don't judge me!
 Inspiration for the actors and concurrency parts of this have been taken from
 [Programming In Scala, 1st Edition by Martin Odersky][pis1ed].
 
-## Better and Worse ##
+# Design Overview: A view from 10,000 feet #
+The code is split up into a few packages. The most important one is probably
+the **entity** package, which specifies the main components of the simulation.
+This is a shipping simulation, and thus the main entities are the Locations,
+the Segments, which connect the locations, the Fleet, which holds meta-data
+related to the network, Shipments, the things that traverse around the network.
+
+The **adt** package defines a few important abstract data types, such as
+distances, costs, speeds, and times. These define operators and implicit
+conversions from integers. The **query** package contains helper classes for
+querying the shipping network (such as calculating connections between two
+locations). **sim** contains helper classes related to the simulation.
+
+## Simulation Overview ##
+The `clock` is the centerpiece of the actors-based simulation. For background
+on actors-based simulations, I recommend reading the Actors and Concurrency
+chapter in [Programming In Scala][pis1ed]
+
+There are a few important invariants we maintain.
+
+1. No new event suddenly occurs at the current time. Every event must occur
+   at least one time-step in the future.
+1. Actors do not send messages to one-another directly (mostly). This is
+   important because we need to prevent actors from running ahead of each
+   other. We leverage the above point, and channel all communication through
+   the clock. The clock keeps an agenda for each time-step. That way, when
+   all non-clock actors receive a `Ping` from the clock, they can immediately
+   respond with a `Pong`, knowing they have received all messages for the time.
+
+# Better and Worse #
 Each of the different implementations have different strengths and weaknesses.
 For example, in the Scala version, I fleshed out the abstract data types
 (such as Length, Time, Cost) in Scala, whereas they were not very fleshed out
 in the C++ implementation. The Scala version, however, does not have the
 string-based API required of the C++ implementation.
 
-### Changing the Model: Shipment Schedules ###
+## Changing the Model: Shipment Schedules ##
 While implementing the code required for complex shipping schedules, I realized
 the model used in the CS249A implementation is completely broken. There's no
 reason why the shipping schedules need to be implemented inside the Locations.
@@ -42,10 +73,10 @@ abstraction. Now, one Location can have more than one shipping destination.
 seconds to change the whole implementation from having Locations be actors to
 using the new ShipmentSchedule abstraction.
 
-## Performance ##
+# Performance #
 To be evaluated.
 
-## Notes from front lines ##
+# Notes from front lines #
 One of the points of the the course (CS249A) was to impress upon the
 scalability and maintainability of a codebase. I think the course failed in
 that regards, simply due to the huge amount of code required to write a
