@@ -1,10 +1,10 @@
 # Hello world! #
 Author: saeta@cs.stanford.edu
 
-This is a project to reimplement a frustrating assignment in C++ for Professor
+This is a project to re-implement a frustrating assignment in C++ for Professor
 Cheriton's class (CS249A at Stanford).
 
-The assignment is sourced from http://cs249a.stanford.edu/ I have copied it
+The assignment is sourced from [the CS249A website][cs249a] I have copied it
 down into the assignment directory so that the assignment details last beyond
 the quarter in which I took CS249A. (Note: the web pages were available to the
 public, and were not behind Web-Auth, so I feel justified storing them in this
@@ -19,8 +19,7 @@ already (in minimal fashion).
 This code is, unfortunately, not my best. Please don't judge me!
 
 Inspiration for the actors and concurrency parts of this have been taken from
-Programming In Scala, 1st Edition by Martin Odersky available on the web at:
-(http://www.artima.com/pins1ed/)
+[Programming In Scala, 1st Edition by Martin Odersky][pis1ed].
 
 ## Better and Worse ##
 Each of the different implementations have different strengths and weaknesses.
@@ -53,3 +52,6 @@ that regards, simply due to the huge amount of code required to write a
 relatively simple simulation (4000 for assignment 1, 8000 for assignment 2).
 I'm not convinced the Scala solution is much more extensible, but perhaps it
 scales better simply due to the fact that it's a fraction of the size.
+
+[pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
+[cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
