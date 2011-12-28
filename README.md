@@ -62,6 +62,5 @@ the features of the language, writing the GraphViz support was a snap. The
 longest time I spent was debugging the test. (Ended up being a typo in spelling
 out the comment on the first line. :-D)
 
-
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
