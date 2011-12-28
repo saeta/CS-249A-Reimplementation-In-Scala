@@ -23,7 +23,7 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
         case Stop => exit()
         case Ping(time) =>
           // We can send at soonest the next time slot.
-          nextAvailableTime = math.max(time + 1, nextAvailableTime)
+          nextAvailableTime = math.max(time + 2, nextAvailableTime)
           fleet.clock ! Pong(time, self)
         case msg => handleSimMessage(msg)
       }
@@ -33,10 +33,11 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
   def handleSimMessage(msg: Any) = msg match {
     case shp @ Shipment(_, _, dst, size) =>
       shp.moved()
-      if (this == shp.dst) shp.completed()
+      if (this.dst == shp.dst) shp.completed()
       else {
         fleet.clock !  WorkItem(nextAvailableTime, shp, shp.next)
         nextAvailableTime += shp.size // TODO: take into account capacity
       }
   }
+  start()
 }

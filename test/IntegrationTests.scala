@@ -15,6 +15,7 @@ class IntegrationTests extends FunSuite with BeforeAndAfter with ShouldMatchers 
   var c1_p1, p1_c1, p2_p1, p1_p2, c2_p2, p2_c2: Segment = _
   
   before {
+    fleet = new Fleet
     c1 = Location(fleet, "c1", CUST)
     c2 = Location(fleet, "c2", CUST)
     p1 = Location(fleet, "p1", PORT)

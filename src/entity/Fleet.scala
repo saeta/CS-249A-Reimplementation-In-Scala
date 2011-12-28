@@ -18,6 +18,7 @@ class Fleet {
   val locs = scala.collection.mutable.Set[Location]()
   
   val clock = new Clock(this)
+  var completedShipments = 0 // TODO: better stats for shipments
   
   def count(lt: LocType) = locs.count(loc => loc.lt == lt)
   def count(mode: Mode) = segs.count(s => s.mode == mode)
@@ -62,4 +63,5 @@ class Fleet {
     }
     buf
   }
+  override def toString = "Fleet"
 }
