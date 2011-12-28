@@ -39,6 +39,10 @@ In order to define a shipment schedule, all one must do is inherit from a class
 that takes care of all the plumbing, etc. This is a very flexible, clean
 abstraction. Now, one Location can have more than one shipping destination.
 
+(Side note:) Because the code base is so small, it took be less than 120
+seconds to change the whole implementation from having Locations be actors to
+using the new ShipmentSchedule abstraction.
+
 ## Performance ##
 To be evaluated.
 
