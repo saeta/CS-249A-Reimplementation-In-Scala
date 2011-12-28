@@ -22,22 +22,30 @@ Inspiration for the actors and concurrency parts of this have been taken from
 Programming In Scala, 1st Edition by Martin Odersky available on the web at:
 (http://www.artima.com/pins1ed/)
 
-### Notes from front lines ###
+## Better and Worse ##
+Each of the different implementations have different strengths and weaknesses.
+For example, in the Scala version, I fleshed out the abstract data types
+(such as Length, Time, Cost) in Scala, whereas they were not very fleshed out
+in the C++ implementation. The Scala version, however, does not have the
+string-based API required of the C++ implementation.
+
+### Changing the Model: Shipment Schedules ###
+While implementing the code required for complex shipping schedules, I realized
+the model used in the CS249A implementation is completely broken. There's no
+reason why the shipping schedules need to be implemented inside the Locations.
+Instead, they can be extracted, and be first-class citizens. Better yet, this
+implementation is _much_ more flexible in terms of scheduling shipments.
+In order to define a shipment schedule, all one must do is inherit from a class
+that takes care of all the plumbing, etc. This is a very flexible, clean
+abstraction. Now, one Location can have more than one shipping destination.
+
+## Performance ##
+To be evaluated.
+
+## Notes from front lines ##
 One of the points of the the course (CS249A) was to impress upon the
 scalability and maintainability of a codebase. I think the course failed in
 that regards, simply due to the huge amount of code required to write a
 relatively simple simulation (4000 for assignment 1, 8000 for assignment 2).
 I'm not convinced the Scala solution is much more extensible, but perhaps it
 scales better simply due to the fact that it's a fraction of the size.
-
-##### TODO #####
-Where am I? I have most of the basic machinery for the simulation. Problems
-that need to be addressed: creating the shipments, stats, tests! Anything else?
-Who knows... But right now, it's time for bed.
-
-### Better and Worse ###
-Each of the different implementations have different strengths and weaknesses.
-For example, in the Scala version, I fleshed out the abstract data types
-(such as Length, Time, Cost) in Scala, whereas they were not very fleshed out
-in the C++ implementation. The Scala version, however, does not have the
-string-based API required of the C++ implementation.
