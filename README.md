@@ -1,6 +1,6 @@
 # CS 249A Re-implementation in Scala #
-Author: saeta@cs.stanford.edu
-Project started: December 2011
+ - Author: saeta@cs.stanford.edu
+ - Project started: December 2011
 
 # Overview #
 This is a project to re-implement a frustrating assignment in C++ for Professor
@@ -154,9 +154,9 @@ it was to:
 The Scala implementation took a fraction of the man hours, and I think is
 much more simple than the C++ implementation. The Scala implementation comes in
 around 400 lines of code (excluding tests; 200 more lines for tests), a factor
-of 20 less. While Scala is a much richer language with much more complex
-features, I think Scala is a huge win in terms of maintainability, flexibility,
-and developer productivity.
+of 20 less. While Scala is a much richer language with more complex features, I
+think Scala is a huge win in terms of maintainability, flexibility, and 
+developer productivity.
 
 ## Future work ##
 There are a few things to add to this project:
