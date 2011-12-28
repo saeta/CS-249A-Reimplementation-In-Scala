@@ -10,7 +10,7 @@ case class Pong(time: Int, from: Actor)
 case class WorkItem(time: Int, msg: Any, target: Actor)
 case class AfterDelay(delay: Int, msg: Any, target: Actor)
 
-case class Start(main: Actor)
+case class Start(main: Actor, stopTime: Int)
 case object Done
 
 /**
@@ -77,9 +77,10 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
         assert(busySimulants contains sim)
         busySimulants -= sim
         
-      case Start(m) =>
+      case Start(m, stopT) =>
         running = true
         main = m
+        stopTIme = stopT
       
     }
   }

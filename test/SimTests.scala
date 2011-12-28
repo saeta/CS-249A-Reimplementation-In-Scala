@@ -39,20 +39,17 @@ class SimTests extends FunSuite with BeforeAndAfter with ShouldMatchers {
 
   test("Basic") {
     setSimpleShipmentSchedules()
-    fleet.clock.stopTIme = 34
-    fleet.clock ! Start(self)
+    fleet.clock ! Start(self, 34)
     (self.receive { case Done => true }) should be (true)
     fleet.completedShipments should be (10)
   }
   
   test("Restart") {
     setSimpleShipmentSchedules()
-    fleet.clock.stopTIme = 10
-    fleet.clock ! Start(self)
+    fleet.clock ! Start(self, 10)
     (self.receive { case Done => true}) should be (true)
     
-    fleet.clock.stopTIme = 34
-    fleet.clock ! Start(self)
+    fleet.clock ! Start(self, 34)
     (self.receive { case Done => true}) should be (true)
     fleet.completedShipments should be (10)
   }
