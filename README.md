@@ -60,7 +60,8 @@ and make things more testable, and was fairly frustrated for a few hours on how
 to support it. Perhaps because I had that experience, or perhaps also due to
 the features of the language, writing the GraphViz support was a snap. The
 longest time I spent was debugging the test. (Ended up being a typo in spelling
-out the comment on the first line. :-D)
+out the comment on the first line. :-D) The full APIs allowed be to quickly
+write some debugging code, and I quickly figured out the problem.
 
 [pis1ed]: http://www.artima.com/pins1ed/ "Programming In Scala, 1st Edition"
 [cs249a]: http://cs249a.stanford.edu/ "CS 249A Website"
