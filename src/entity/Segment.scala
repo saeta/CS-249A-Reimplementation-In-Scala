@@ -33,10 +33,10 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
   def handleSimMessage(msg: Any) = msg match {
     case shp: Shipment =>
       shp.moved()
-      if (this.dst == shp.dst) shp.completed()
+      if (dst == shp.dst) shp.completed()
       else {
-        fleet.clock !  WorkItem(nextAvailableTime, shp, shp.next)
         nextAvailableTime += shp.size // TODO: take into account capacity
+        fleet.clock !  WorkItem(nextAvailableTime, shp, shp.next)
       }
   }
 }

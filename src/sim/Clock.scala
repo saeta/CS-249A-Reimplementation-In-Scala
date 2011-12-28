@@ -43,8 +43,8 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   }
   
   def advance() {
-    if (agenda.isEmpty && currentTime > 0 && currentTime >= stopTIme) {
-      log("** Agenda empty. Clock exiting at time " + currentTime + ".")
+    if (currentTime >= stopTIme) {
+      log("** Clock pausing at time " + currentTime + ".")
       main ! Done
       return
     }
