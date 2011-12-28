@@ -10,12 +10,13 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
     len: Length, difficulty: Difficulty = Difficulty(1)) extends Actor {
   src.segs += this
   fleet.segs += this
+  start()
   
   private var nextAvailableTime = 0 
-  
   def time = len / fleet.speed(mode)
   def cost = len * difficulty * fleet.cost(mode)
   override def toString = src.name + "->" + dst.name
+  def gvString = src.gvName + " -> " + dst.gvName
   
   def act() {
     loop {
@@ -38,5 +39,4 @@ case class Segment(fleet: Fleet, src: Location, dst: Location, mode: Mode,
         nextAvailableTime += shp.size // TODO: take into account capacity
       }
   }
-  start()
 }
