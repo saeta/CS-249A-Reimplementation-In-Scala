@@ -27,7 +27,6 @@ class Clock(fleet: Fleet, verbose: Boolean = false) extends Actor {
   private var main: Actor = _
   private var agenda: List[WorkItem] = List()
   private var busySimulants: Set[Actor] = Set()
-  
   var stopTime = 0
   start()
   
